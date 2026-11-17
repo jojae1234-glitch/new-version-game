@@ -1,0 +1,1976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>큐브AI - AI 게임 제작 & 공유 플랫폼</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .tier-badge-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('explore')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                    <i class="fa-solid font-bold fa-cube text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-black tracking-tight text-slate-900">큐브<span class="text-blue-600 font-extrabold">AI</span></span>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest -mt-1">플레이 & 제작 & 공유</span>
+                </div>
+            </div>
+
+            <!-- Enhanced Navigation Links -->
+            <nav class="flex items-center gap-1.5 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+                <button id="nav-explore" onclick="switchTab('explore')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm">
+                    <i class="fa-solid fa-compass text-blue-600"></i>
+                    <span>게임 탐색</span>
+                </button>
+                <button id="nav-create" onclick="switchTab('create')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-white/60">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                    <span>AI 게임 만들기</span>
+                </button>
+                <button id="nav-profile" onclick="switchTab('profile')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-white/60 relative">
+                    <i id="header-tier-icon" class="fa-solid fa-seedling text-emerald-500"></i>
+                    <span>내 프로필 & 친구</span>
+                    <span id="nav-request-dot" class="hidden absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-white"></span>
+                </button>
+                <button onclick="openApiKeyModal()" title="외부 웹사이트 연동을 위한 API Key 설정" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200">
+                    <i class="fa-solid fa-key text-amber-500"></i>
+                    <span class="hidden sm:inline">API 키</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- VIEW 1: EXPLORE & COMMUNITY GAMES HUB -->
+        <section id="view-explore" class="space-y-6">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50 via-slate-50 to-red-50 border border-slate-200 p-6 sm:p-8 shadow-sm">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute right-1/3 -top-10 w-40 h-40 bg-yellow-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="relative z-10 max-w-2xl space-y-3">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-100 border border-yellow-300 text-yellow-800 text-xs font-bold">
+                        <i class="fa-solid fa-sparkles text-red-500"></i>
+                        <span>게임을 많이 플레이할수록 티어가 상승합니다!</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        AI가 만든 독창적인 게임을 <br class="hidden sm:inline"><span class="bg-gradient-to-r from-blue-600 via-red-500 to-yellow-500 bg-clip-text text-transparent">플레이하고 직접 만들어보세요!</span>
+                    </h1>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        상상하는 모든 게임 아이디어를 입력하면 AI가 즉시 제작해줍니다. 게임을 플레이하고 티어를 올리며 친구들과 소통해보세요!
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-3">
+                        <button onclick="switchTab('create')" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-600/20 transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus text-yellow-300"></i> 나만의 AI 게임 제작하기
+                        </button>
+                        <button onclick="switchTab('profile')" class="px-5 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-sm shadow-sm transition flex items-center gap-2">
+                            <i class="fa-solid fa-user-gear text-blue-600"></i> 내 프로필 & 티어 확인
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters & Search Bar -->
+            <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <!-- Tabs for sorting -->
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                    <button onclick="setFilter('all')" id="filter-all" class="filter-btn active-filter px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap bg-blue-600 text-white shadow-sm">
+                        <i class="fa-solid fa-border-all mr-1.5"></i>전체 게임
+                    </button>
+                    <button onclick="setFilter('popular')" id="filter-popular" class="filter-btn px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-red-600">
+                        <i class="fa-solid fa-fire mr-1.5 text-red-500"></i>최다 플레이 (인기)
+                    </button>
+                    <button onclick="setFilter('liked')" id="filter-liked" class="filter-btn px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-yellow-50 hover:text-yellow-700">
+                        <i class="fa-solid fa-heart mr-1.5 text-red-500"></i>최다 좋아요
+                    </button>
+                    <button onclick="setFilter('recent')" id="filter-recent" class="filter-btn px-4 py-2 rounded-lg text-xs font-bold transition whitespace-nowrap bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-600">
+                        <i class="fa-solid fa-clock mr-1.5 text-blue-500"></i>최신순
+                    </button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative w-full md:w-72">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="handleSearch()" placeholder="게임 제목, 설명, 태그 검색..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                </div>
+            </div>
+
+            <!-- Game Cards Grid -->
+            <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                <i class="fa-solid fa-ghost text-4xl text-slate-400 mb-3"></i>
+                <h3 class="text-lg font-bold text-slate-800">검색 조건에 맞는 게임이 없습니다</h3>
+                <p class="text-sm text-slate-500 mt-1">직접 새로운 AI 게임을 만들어 커뮤니티에 등록해보세요!</p>
+                <button onclick="switchTab('create')" class="mt-4 px-4 py-2 bg-blue-600 text-white font-semibold text-xs rounded-lg hover:bg-blue-700 transition shadow-sm">
+                    게임 만들기
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 2: AI GAME CREATOR STUDIO -->
+        <section id="view-create" class="hidden space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> 큐브 AI 게임 스튜디오
+                    </h2>
+                    <p class="text-slate-600 text-xs sm:text-sm mt-0.5">하나의 대화창으로 게임을 처음 만들고, 대화하며 실시간으로 자유롭게 수정하세요!</p>
+                </div>
+            </div>
+
+            <!-- Studio Main Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Column: Unified Studio Chat & Input Area -->
+                <div class="lg:col-span-5 space-y-4 flex flex-col h-[560px]">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex-1 flex flex-col justify-between overflow-hidden">
+                        
+                        <!-- Chat Header & Enrichment -->
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <span class="text-xs font-extrabold text-blue-600 flex items-center gap-1.5">
+                                <i class="fa-solid fa-comments text-amber-500"></i> AI 게임 대화 및 요청
+                            </span>
+                            <button id="btn-enrich" onclick="enrichPrompt()" class="text-[11px] font-bold text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-md transition flex items-center gap-1">
+                                <i class="fa-solid fa-brain text-red-500"></i> 아이디어 디테일 풍부하게
+                            </button>
+                        </div>
+
+                        <!-- Unified Chat History Box -->
+                        <div id="unified-chat-history" class="flex-1 overflow-y-auto my-3 space-y-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 shadow-sm space-y-1">
+                                <span class="font-extrabold text-blue-600 block">🤖 큐브 AI 스튜디오</span>
+                                <p>원하는 게임 아이디어를 말해보세요! (예: "네온 테마의 벽돌깨기 만들어줘")</p>
+                                <p class="text-[11px] text-slate-500 pt-1 border-t border-slate-100">게임이 생성된 후에도 같은 대화창에서 "속도 2배로 해줘", "적 추가해줘"라고 입력하여 계속 수정할 수 있습니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- Recommendation Preset Badges -->
+                        <div class="py-2 border-t border-slate-100 space-y-1">
+                            <span class="text-[11px] font-medium text-slate-500">💡 추천 예시 아이디어:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="usePreset('네온 스타일의 네온 블록 깨기 게임, 특수 스킬 아이템 포함')" class="text-[11px] bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition">🧱 네온 벽돌깨기</button>
+                                <button onclick="usePreset('중력을 반전시키며 진행하는 2D 픽셀 런너 게임')" class="text-[11px] bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition">🏃‍♂️ 중력 반전 런너</button>
+                                <button onclick="usePreset('우주선으로 적 바이러스를 격퇴하는 탑다운 슈팅 게임')" class="text-[11px] bg-slate-100 hover:bg-blue-50 hover:text-blue-700 border border-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition">🚀 바이러스 슈팅</button>
+                            </div>
+                        </div>
+
+                        <!-- Single Input & Action Button -->
+                        <div class="flex gap-2 pt-2 border-t border-slate-100">
+                            <textarea id="prompt-input" rows="2" placeholder="게임 아이디어를 입력하거나, 수정 요청사항을 입력하세요..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition resize-none" onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); handleUnifiedSubmit(); }"></textarea>
+                            <button id="btn-generate" onclick="handleUnifiedSubmit()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md transition flex flex-col items-center justify-center gap-1 min-w-[90px]">
+                                <i class="fa-solid fa-paper-plane text-yellow-300"></i>
+                                <span id="btn-generate-text">전송</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Right Column: Live Preview Sandbox & Title Controls -->
+                <div class="lg:col-span-7 space-y-5 flex flex-col">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex flex-col h-[560px]">
+                        <div class="bg-slate-100 px-4 py-2.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                            <!-- Game Title & Actions: Delete & Reset -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-mono font-bold text-slate-800 flex items-center gap-1.5" id="preview-status">
+                                    <i class="fa-solid fa-gamepad text-blue-600"></i>
+                                    <span id="studio-game-title">게임 미생성</span>
+                                </span>
+                                
+                                <button onclick="deleteCurrentGame()" title="현재 생성된 게임 삭제" class="px-2 py-1 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-trash-can"></i> 삭제
+                                </button>
+                                <button onclick="resetStudio()" title="대화 및 게임 완전 리셋" class="px-2 py-1 bg-white hover:bg-slate-200 border border-slate-300 text-slate-700 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-right text-blue-600"></i> 리셋
+                                </button>
+                            </div>
+
+                            <!-- Aspect Ratio Switcher -->
+                            <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-[11px] font-bold">
+                                <button onclick="setSandboxRatio('16:9')" id="ratio-16-9" class="sratio-btn px-2 py-0.5 rounded bg-white text-blue-600 shadow-sm transition">16:9 와이드</button>
+                                <button onclick="setSandboxRatio('4:3')" id="ratio-4-3" class="sratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">4:3 클래식</button>
+                                <button onclick="setSandboxRatio('9:16')" id="ratio-9-16" class="sratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">9:16 모바일</button>
+                                <button onclick="setSandboxRatio('full')" id="ratio-full" class="sratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">전체 채우기</button>
+                            </div>
+
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="reloadPreview()" title="게임 새로고침" class="px-2 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate-right text-blue-600"></i>
+                                </button>
+                                <button onclick="toggleFullscreen('sandbox-container')" title="전체화면" class="px-2 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-expand text-indigo-600"></i>
+                                </button>
+                                <button onclick="toggleCodeModal()" title="코드 보기" class="px-2 py-1 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-code text-red-500"></i>
+                                </button>
+                                <button id="btn-publish-open" onclick="openPublishModal()" disabled class="px-3 py-1 bg-blue-600 disabled:bg-slate-200 disabled:text-slate-400 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1">
+                                    <i class="fa-solid fa-share-nodes text-yellow-300"></i> 게시
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="sandbox-container" class="relative flex-1 bg-slate-950 flex items-center justify-center overflow-hidden p-2">
+                            <div id="ai-loading-overlay" class="absolute inset-0 z-20 bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-4 hidden">
+                                <div class="relative">
+                                    <div class="w-16 h-16 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin"></div>
+                                    <i class="fa-solid fa-wand-magic-sparkles text-yellow-500 text-xl absolute inset-0 m-auto w-fit h-fit animate-pulse"></i>
+                                </div>
+                                <div class="text-center space-y-1">
+                                    <h4 id="loading-title" class="text-base font-extrabold text-slate-900">AI가 게임 코드를 작성하고 있습니다...</h4>
+                                    <p id="loading-desc" class="text-xs text-slate-500">잠시만 기다려주세요</p>
+                                </div>
+                            </div>
+
+                            <div id="preview-placeholder" class="text-center p-8 space-y-3 bg-slate-900 text-slate-200 w-full h-full flex flex-col items-center justify-center rounded-xl border border-slate-800">
+                                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 text-2xl">
+                                    <i class="fa-solid fa-gamepad"></i>
+                                </div>
+                                <h3 class="text-base font-bold text-white">미리보기</h3>
+                                <p class="text-xs text-slate-400 max-w-sm mx-auto">좌측 대화창에 메시지를 보내면 여기에 실시간으로 게임이 생성 및 구동됩니다.</p>
+                            </div>
+
+                            <div id="sandbox-aspect-wrapper" class="w-full max-w-4xl aspect-video mx-auto transition-all duration-300 flex items-center justify-center">
+                                <iframe id="game-sandbox" class="w-full h-full border-0 rounded-xl shadow-2xl transition-all duration-300 hidden" sandbox="allow-scripts allow-same-origin"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 3: USER PROFILE & FRIENDS HUB -->
+        <section id="view-profile" class="hidden space-y-6">
+            <!-- Profile Top Card -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                    <div class="flex items-center gap-5">
+                        <!-- Custom Avatar -->
+                        <div id="profile-avatar-box" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-500 flex items-center justify-center text-white text-3xl shadow-lg ring-4 ring-white border border-slate-200 transition-all">
+                            <i id="profile-avatar-icon" class="fa-solid fa-gamepad"></i>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2">
+                                <h2 id="profile-nickname" class="text-2xl font-black text-slate-900">큐브게이머</h2>
+                                <span id="profile-tier-badge" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                                    <i id="profile-tier-icon" class="fa-solid fa-seedling"></i>
+                                    <span id="profile-tier-name">🌱 루키</span>
+                                </span>
+                            </div>
+                            <p id="profile-bio" class="text-xs text-slate-600 max-w-md">게임 제작과 플레이를 즐기는 큐브AI 커뮤니티 유저입니다!</p>
+                            <div class="flex items-center gap-2 text-[11px] text-slate-500 font-mono pt-1">
+                                <span>고유 ID: <strong id="profile-uid-display" class="text-slate-800">guest-cube</strong></span>
+                                <button onclick="copyMyUid()" class="hover:text-blue-600 font-sans font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px]">복사</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="openEditProfileModal()" class="px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-xs transition flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-pen-to-square text-blue-600"></i> 프로필 수정하기
+                    </button>
+                </div>
+
+                <!-- Tier Progress Bar Box -->
+                <div class="mt-6 pt-5 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                    <div class="md:col-span-8 space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold">
+                            <span class="text-slate-700 flex items-center gap-1.5">
+                                <i class="fa-solid fa-trophy text-amber-500"></i> 승급 티어 진행률
+                            </span>
+                            <span id="profile-tier-next-text" class="text-blue-600">다음 티어까지 5회 플레이 남음</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                            <div id="profile-tier-bar" class="bg-gradient-to-r from-blue-500 via-indigo-500 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 20%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stat Counters -->
+                    <div class="md:col-span-4 flex items-center justify-around bg-slate-50 border border-slate-200/80 rounded-xl p-3">
+                        <div class="text-center">
+                            <span id="stat-plays" class="block text-xl font-black text-blue-600">0</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase">플레이한 게임</span>
+                        </div>
+                        <div class="w-px h-8 bg-slate-200"></div>
+                        <div class="text-center">
+                            <span id="stat-created" class="block text-xl font-black text-amber-500">0</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase">제작한 게임</span>
+                        </div>
+                        <div class="w-px h-8 bg-slate-200"></div>
+                        <div class="text-center">
+                            <span id="stat-friends" class="block text-xl font-black text-emerald-600">0</span>
+                            <span class="text-[10px] font-bold text-slate-600 uppercase">내 친구</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Friends & Social Section -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-users text-blue-600"></i> 친구 목록 & 커뮤니티
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">다른 유저들과 친구를 맺고 플레이 스타일과 티어를 비교해보세요!</p>
+                    </div>
+
+                    <!-- Friend Sub Tabs -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                        <button id="ftab-list" onclick="switchFriendTab('list')" class="px-3 py-1 rounded-lg text-xs font-bold transition bg-white text-slate-900 shadow-sm">
+                            내 친구 (<span id="friend-count-badge">0</span>)
+                        </button>
+                        <button id="ftab-add" onclick="switchFriendTab('add')" class="px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 hover:text-blue-600">
+                            추천 유저 & 검색
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB TAB 1: My Friends List -->
+                <div id="fsub-list" class="space-y-4">
+                    <div id="friends-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Populated dynamically -->
+                    </div>
+                    <div id="empty-friends-state" class="text-center py-12 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-user-plus text-3xl text-slate-300 mb-2"></i>
+                        <p class="text-xs font-bold text-slate-600">아직 등록된 친구가 없습니다</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">'추천 유저 & 검색' 탭에서 새로운 게이머 친구를 추가해보세요!</p>
+                        <button onclick="switchFriendTab('add')" class="mt-3 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition">
+                            친구 찾아보기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SUB TAB 2: Add / Discover Friends -->
+                <div id="fsub-add" class="hidden space-y-5">
+                    <!-- Search User Input -->
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="friend-search-input" placeholder="유저 고유 ID 또는 닉네임으로 검색..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition">
+                        </div>
+                        <button onclick="searchUsers()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                            검색
+                        </button>
+                    </div>
+
+                    <!-- Community Recommended Players Grid -->
+                    <div class="space-y-2">
+                        <span class="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-fire text-red-500"></i> 활동 중인 추천 게이머 목록
+                        </span>
+                        <div id="recommended-users-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL: API KEY MODAL (For External Hosting like GitHub Pages / Google Sites) -->
+    <div id="modal-apikey" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-slate-900">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-key text-amber-500"></i> 구글 Gemini API 키 설정
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-700 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600 leading-relaxed">
+                제공하신 API 키(<code class="bg-slate-100 px-1 rounded">AQ.Ab8RN6...</code>)가 기본 등록되어 있습니다. 아래 <strong>연결 테스트</strong> 버튼으로 정상 작동 여부를 바로 확인할 수 있습니다.
+            </p>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Gemini API Key (AQ. 또는 AIzaSy...)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="input-api-key" placeholder="AQ.Ab8RN6... 또는 AIzaSy..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 font-mono">
+                    <button type="button" id="btn-test-apikey" onclick="testApiKeyConnection()" class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs whitespace-nowrap transition shadow-sm">
+                        연결 테스트
+                    </button>
+                </div>
+                <div id="apikey-test-result" class="hidden mt-2 p-2.5 rounded-xl text-[11px] leading-relaxed border"></div>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="closeApiKeyModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition">취소</button>
+                <button onclick="saveApiKey()" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md shadow-blue-600/20">저장 및 적용</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT PROFILE MODAL -->
+    <div id="modal-edit-profile" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5 text-slate-900">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-user-pen text-blue-600"></i> 프로필 및 아바타 변경
+                </h3>
+                <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-slate-700 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Avatar Preview -->
+            <div class="flex items-center justify-center py-2">
+                <div id="modal-avatar-preview" class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-500 flex items-center justify-center text-white text-3xl shadow-md border border-slate-200">
+                    <i id="modal-avatar-icon-preview" class="fa-solid fa-gamepad"></i>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">닉네임</label>
+                    <input type="text" id="edit-nickname" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">한 줄 자기소개</label>
+                    <textarea id="edit-bio" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white resize-none"></textarea>
+                </div>
+
+                <!-- Choose Icon -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">아바타 아이콘 선택</label>
+                    <div class="flex gap-2 justify-between">
+                        <button type="button" onclick="selectAvatarIcon('fa-gamepad')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-gamepad text-base"></i></button>
+                        <button type="button" onclick="selectAvatarIcon('fa-robot')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-robot text-base"></i></button>
+                        <button type="button" onclick="selectAvatarIcon('fa-rocket')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-rocket text-base"></i></button>
+                        <button type="button" onclick="selectAvatarIcon('fa-crown')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-crown text-base"></i></button>
+                        <button type="button" onclick="selectAvatarIcon('fa-ghost')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-ghost text-base"></i></button>
+                        <button type="button" onclick="selectAvatarIcon('fa-bolt')" class="icon-option p-2.5 rounded-xl border border-slate-200 hover:bg-blue-50 text-slate-700"><i class="fa-solid fa-bolt text-base"></i></button>
+                    </div>
+                </div>
+
+                <!-- Choose Color Gradient -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">아바타 배경색 선택</label>
+                    <div class="flex gap-2 justify-between">
+                        <button type="button" onclick="selectAvatarBg('from-blue-600 via-indigo-600 to-purple-500')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-500 ring-2 ring-offset-1 ring-blue-500"></button>
+                        <button type="button" onclick="selectAvatarBg('from-emerald-500 via-teal-600 to-cyan-500')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 via-teal-600 to-cyan-500 ring-2 ring-offset-1 ring-emerald-500"></button>
+                        <button type="button" onclick="selectAvatarBg('from-amber-500 via-orange-600 to-red-500')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-orange-600 to-red-500 ring-2 ring-offset-1 ring-amber-500"></button>
+                        <button type="button" onclick="selectAvatarBg('from-pink-500 via-rose-600 to-purple-600')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 via-rose-600 to-purple-600 ring-2 ring-offset-1 ring-pink-500"></button>
+                        <button type="button" onclick="selectAvatarBg('from-slate-700 via-slate-800 to-slate-900')" class="w-8 h-8 rounded-full bg-gradient-to-tr from-slate-700 via-slate-800 to-slate-900 ring-2 ring-offset-1 ring-slate-700"></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="closeEditProfileModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition">취소</button>
+                <button onclick="saveProfileChanges()" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md shadow-blue-600/20">저장하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: GAME PLAYER MODAL -->
+    <div id="modal-player" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[95vh] h-[85vh]">
+            <div class="px-4 py-3 bg-slate-100 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 border border-blue-300 flex items-center justify-center text-blue-600 font-bold">
+                        🎮
+                    </div>
+                    <div>
+                        <h3 id="player-title" class="text-base font-extrabold text-slate-900">게임 제목</h3>
+                        <p id="player-author" class="text-xs text-slate-500">제작자: 익명 개발자</p>
+                    </div>
+                </div>
+
+                <!-- Player Ratio Switcher -->
+                <div class="flex items-center gap-1 bg-slate-200/80 p-0.5 rounded-lg text-[11px] font-bold">
+                    <button onclick="setPlayerRatio('16:9')" id="pratio-16-9" class="pratio-btn px-2 py-0.5 rounded bg-white text-blue-600 shadow-sm transition">16:9 HD</button>
+                    <button onclick="setPlayerRatio('4:3')" id="pratio-4-3" class="pratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">4:3 아케이드</button>
+                    <button onclick="setPlayerRatio('9:16')" id="pratio-9-16" class="pratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">9:16 모바일</button>
+                    <button onclick="setPlayerRatio('full')" id="pratio-full" class="pratio-btn px-2 py-0.5 rounded text-slate-600 hover:text-slate-900 transition">전체 채우기</button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btn-player-like" onclick="likeCurrentGame()" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-red-50 text-red-500 text-xs font-bold transition flex items-center gap-1 border border-slate-200">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="player-like-count">0</span>
+                    </button>
+                    <button onclick="toggleFullscreen('player-wrapper')" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-indigo-600 text-xs font-bold transition flex items-center gap-1 border border-slate-200" title="전체 화면">
+                        <i class="fa-solid fa-expand"></i>
+                        <span class="hidden sm:inline">전체화면</span>
+                    </button>
+                    <button onclick="forkCurrentGame()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 border border-blue-600 shadow-sm" title="이 게임을 기반으로 내 스튜디오에서 수정하기">
+                        <i class="fa-solid fa-code-fork text-yellow-300"></i>
+                        <span>수정하기 (Fork)</span>
+                    </button>
+                    <button onclick="closePlayerModal()" class="w-8 h-8 rounded-lg bg-white hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition border border-slate-200">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="player-wrapper" class="relative bg-slate-950 flex-1 flex items-center justify-center overflow-hidden p-2">
+                <!-- Updated Initial Player Aspect Ratio Wrapper -->
+                <div id="player-aspect-box" class="w-full max-w-5xl aspect-video mx-auto transition-all duration-300 flex items-center justify-center">
+                    <iframe id="player-iframe" class="w-full h-full border-0 rounded-xl shadow-2xl transition-all duration-300" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+            </div>
+
+            <div class="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div>
+                    <span class="font-bold text-slate-800">설명:</span>
+                    <span id="player-desc" class="text-slate-600 ml-1">게임 설명 영역</span>
+                </div>
+                <div class="flex items-center gap-4 text-slate-500">
+                    <span><i class="fa-solid fa-eye mr-1 text-blue-600"></i><span id="player-views">0</span>회 플레이</span>
+                    <span><i class="fa-solid fa-calendar mr-1 text-red-500"></i><span id="player-date">2026.11.17</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PUBLISH GAME MODAL -->
+    <div id="modal-publish" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4 text-slate-900">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-share-nodes text-blue-600"></i> 게임 온라인 게시하기
+                </h3>
+                <button onclick="closePublishModal()" class="text-slate-400 hover:text-slate-700 text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-500">게시판에 등록되어 누구나 이 게임을 둘러보고 플레이할 수 있게 됩니다.</p>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">게임 제목 *</label>
+                    <input type="text" id="pub-title" placeholder="예: 큐브 네온 드라이버" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">개발자 / 작성자 이름</label>
+                    <input type="text" id="pub-author" placeholder="닉네임 (기본값: 익명 제작자)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">게임 설명 및 조작 방법 *</label>
+                    <textarea id="pub-desc" rows="3" placeholder="예: 방향키로 이동하고 스페이스바로 발사하세요!" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">태그 (쉼표로 구분)</label>
+                    <input type="text" id="pub-tags" placeholder="아케이드, 슈팅, 네온, 레트로" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 focus:bg-white">
+                </div>
+            </div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="closePublishModal()" class="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition">취소</button>
+                <button onclick="submitPublishGame()" class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-md shadow-blue-600/20">게시하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: VIEW CODE -->
+    <div id="modal-code" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[80vh]">
+            <div class="px-5 py-3.5 bg-slate-100 border-b border-slate-200 flex items-center justify-between">
+                <span class="text-xs font-extrabold text-slate-800 code-font"><i class="fa-solid fa-code text-blue-600 mr-2"></i>생성된 HTML5 / JS 게임 소스코드</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyCode()" class="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition">
+                        <i class="fa-solid fa-copy mr-1"></i> 코드 복사
+                    </button>
+                    <button onclick="toggleCodeModal()" class="text-slate-400 hover:text-slate-700 text-sm ml-2">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 p-4 bg-slate-900 overflow-auto">
+                <pre><code id="code-display" class="code-font text-xs text-blue-200 whitespace-pre-wrap break-all"></code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // Safe Storage helper for Google Sites Sandboxed Iframe compatibility
+        const memoryStorage = {};
+        const safeStorage = {
+            getItem(key) {
+                try {
+                    return window.localStorage.getItem(key);
+                } catch (e) {
+                    return memoryStorage[key] || null;
+                }
+            },
+            setItem(key, val) {
+                memoryStorage[key] = val;
+                try {
+                    window.localStorage.setItem(key, val);
+                } catch (e) {
+                    // Ignore SecurityError in strict Google Sites iframe
+                }
+            },
+            removeItem(key) {
+                delete memoryStorage[key];
+                try {
+                    window.localStorage.removeItem(key);
+                } catch (e) {
+                    // Ignore
+                }
+            }
+        };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cube-ai-default';
+        let firebaseConfig = null;
+        let isExternalHosting = true;
+
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+                isExternalHosting = false;
+            }
+        } catch (e) {
+            isExternalHosting = true;
+        }
+
+        let app = null;
+        let auth = null;
+        let db = null;
+        let fbModules = null;
+
+        let currentUser = null;
+        let communityGames = [];
+        let filteredGames = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // Studio State
+        let currentGeneratedHtml = '';
+        let currentPrompt = '';
+        let activePlayingGame = null;
+
+        // User Profile & Social State
+        let myProfile = {
+            nickname: '큐브게이머',
+            bio: '게임을 플레이하고 AI로 나만의 게임을 제작합니다!',
+            avatarBg: 'from-blue-600 via-indigo-600 to-purple-500',
+            avatarIcon: 'fa-gamepad',
+            playCount: 0,
+            createdCount: 0,
+            friends: ['user_alex', 'user_sarah']
+        };
+
+        let tempEditAvatarIcon = 'fa-gamepad';
+        let tempEditAvatarBg = 'from-blue-600 via-indigo-600 to-purple-500';
+
+        // Tier System Definition
+        const TIERS = [
+            { minPlays: 0,   maxPlays: 4,   name: '🌱 루키', icon: 'fa-seedling', badgeBg: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+            { minPlays: 5,   maxPlays: 14,  name: '🥉 브론즈', icon: 'fa-award', badgeBg: 'bg-amber-100 text-amber-900 border-amber-300' },
+            { minPlays: 15,  maxPlays: 29,  name: '🥈 실버', icon: 'fa-medal', badgeBg: 'bg-slate-200 text-slate-800 border-slate-300' },
+            { minPlays: 30,  maxPlays: 49,  name: '🥇 골드', icon: 'fa-trophy', badgeBg: 'bg-yellow-100 text-yellow-900 border-yellow-300' },
+            { minPlays: 50,  maxPlays: 99,  name: '💎 플래티넘', icon: 'fa-gem', badgeBg: 'bg-cyan-100 text-cyan-900 border-cyan-300' },
+            { minPlays: 100, maxPlays: 9999, name: '👑 큐브 레전드', icon: 'fa-crown', badgeBg: 'bg-purple-100 text-purple-900 border-purple-300' }
+        ];
+
+        // Recommended Community Users
+        const RECOMMENDED_USERS = [
+            { uid: 'user_alex', nickname: 'PixelMaster_Alex', tierName: '🥈 실버', tierIcon: 'fa-medal', playCount: 22, bio: '2D 픽셀 게임 매니아입니다!', avatarBg: 'from-emerald-500 via-teal-600 to-cyan-500', avatarIcon: 'fa-gamepad' },
+            { uid: 'user_sarah', nickname: 'AI_GameCraft', tierName: '🥇 골드', tierIcon: 'fa-trophy', playCount: 41, bio: '매일 AI로 게임 1개씩 만드는 커스텀 제작자!', avatarBg: 'from-amber-500 via-orange-600 to-red-500', avatarIcon: 'fa-robot' },
+            { uid: 'user_leo', nickname: 'RetroGamer_Leo', tierName: '💎 플래티넘', tierIcon: 'fa-gem', playCount: 88, bio: '고전 레트로 슈팅 게임 성지', avatarBg: 'from-purple-600 via-pink-600 to-red-500', avatarIcon: 'fa-rocket' },
+            { uid: 'user_mina', nickname: 'Cube_Runner', tierName: '🥉 브론즈', tierIcon: 'fa-award', playCount: 12, bio: '무한 런너 퍼즐류 게임 좋아해요!', avatarBg: 'from-slate-700 via-slate-800 to-slate-900', avatarIcon: 'fa-bolt' }
+        ];
+
+        const DEFAULT_MOCK_GAMES = [
+            {
+                id: 'mock-1',
+                title: '네온 사이버 피하기 (Neon Cyber Dodge HD)',
+                author: 'CyberDev',
+                desc: '16:9 와이드 화면에 맞춰 자동으로 리사이즈되는 고해상도 네온 회피 액션 게임!',
+                tags: ['아케이드', '네온', '회피', 'HD와이드'],
+                plays: 142,
+                likes: 38,
+                createdAt: Date.now() - 86400000 * 2,
+                code: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#090a0f;color:#fff;font-family:sans-serif}canvas{display:block;width:100vw;height:100vh}</style></head><body><canvas id="c"></canvas><script>
+                const c=document.getElementById('c'),ctx=c.getContext('2d');
+                let W,H;function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+                window.onresize=resize;resize();
+                let p={x:W/2,y:H/2,r:16,s:7},score=0,over=false,keys={},objs=[],coins=[];
+                window.onkeydown=e=>keys[e.key]=true;window.onkeyup=e=>keys[e.key]=false;
+                function spawnObj(){objs.push({x:Math.random()*W,y:-20,vy:Math.random()*4+3,r:14});}
+                function spawnCoin(){coins.push({x:Math.random()*(W-40)+20,y:Math.random()*(H-80)+40,r:10});}
+                setInterval(()=>{if(!over)spawnObj()},400);setInterval(()=>{if(!over&&coins.length<4)spawnCoin()},1200);
+                function loop(){
+                  if(keys['ArrowLeft']&&p.x>p.r)p.x-=p.s;if(keys['ArrowRight']&&p.x<W-p.r)p.x+=p.s;
+                  if(keys['ArrowUp']&&p.y>p.r)p.y-=p.s;if(keys['ArrowDown']&&p.y<H-p.r)p.y+=p.s;
+                  if(keys['a']&&p.x>p.r)p.x-=p.s;if(keys['d']&&p.x<W-p.r)p.x+=p.s;if(keys['w']&&p.y>p.r)p.y-=p.s;if(keys['s']&&p.y<H-p.r)p.y+=p.s;
+                  ctx.fillStyle='rgba(9,10,15,0.3)';ctx.fillRect(0,0,W,H);
+                  ctx.shadowBlur=20;ctx.shadowColor='#00f0ff';ctx.fillStyle='#00f0ff';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+                  ctx.shadowColor='#ff0055';ctx.fillStyle='#ff0055';objs.forEach((o,i)=>{o.y+=o.vy;ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,Math.PI*2);ctx.fill();
+                  if(Math.hypot(p.x-o.x,p.y-o.y)<p.r+o.r)over=true;});
+                  ctx.shadowColor='#ffcc00';ctx.fillStyle='#ffcc00';coins.forEach((cn,i)=>{ctx.beginPath();ctx.arc(cn.x,cn.y,cn.r,0,Math.PI*2);ctx.fill();
+                  if(Math.hypot(p.x-cn.x,p.y-cn.y)<p.r+cn.r){score+=10;coins.splice(i,1);}});
+                  ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.font='bold 20px sans-serif';ctx.fillText('점수: '+score,20,40);
+                  if(over){ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#ff0055';ctx.font='bold 40px sans-serif';ctx.textAlign='center';ctx.fillText('GAME OVER',W/2,H/2-20);ctx.fillStyle='#fff';ctx.font='18px sans-serif';ctx.fillText('새로고침을 눌러 다시 플레이하세요',W/2,H/2+30);return;}
+                  requestAnimationFrame(loop);
+                }loop();
+                <\/script></body></html>`
+            },
+            {
+                id: 'mock-2',
+                title: '바운스 퍼즐 브레이커 (Bounce Puzzle)',
+                author: 'AI_Master',
+                desc: '어떤 해상도 비율에서도 중앙에 와이드하게 가득 차서 반응형으로 렌더링되는 물리학 블록 게임입니다.',
+                tags: ['퍼즐', '피지컬', '반응형'],
+                plays: 289,
+                likes: 74,
+                createdAt: Date.now() - 86400000 * 5,
+                code: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#111827;color:#fff;font-family:sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center}canvas{display:block;width:100vw;height:100vh;background:#1f2937}</style></head><body><canvas id="c"></canvas><script>
+                const c=document.getElementById('c'),ctx=c.getContext('2d');
+                let W,H;function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+                window.onresize=resize;resize();
+                let ball={x:W/2,y:H-50,vx:0,vy:0,r:10,moving:false},blocks=[],score=0;
+                function createBlocks(){
+                  blocks=[];const cols=Math.floor(W/80),rows=4;
+                  for(let r=0;r<rows;r++){for(let col=0;col<cols;col++){blocks.push({x:20+col*(W/cols),y:60+r*45,w:(W/cols)-10,h:30,hp:3});}}
+                }createBlocks();
+                c.onclick=e=>{if(ball.moving)return;const rect=c.getBoundingClientRect();const dx=(e.clientX-rect.left)-ball.x,dy=(e.clientY-rect.top)-ball.y,dist=Math.hypot(dx,dy);ball.vx=(dx/dist)*9;ball.vy=(dy/dist)*9;ball.moving=true;}
+                function loop(){
+                  ctx.clearRect(0,0,W,H);
+                  if(ball.moving){
+                    ball.x+=ball.vx;ball.y+=ball.vy;
+                    if(ball.x<ball.r||ball.x>W-ball.r)ball.vx*=-1;
+                    if(ball.y<ball.r)ball.vy*=-1;
+                    if(ball.y>H-ball.r){ball.moving=false;ball.x=W/2;ball.y=H-50;ball.vx=0;ball.vy=0;}
+                  }
+                  ctx.fillStyle='#e11d48';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();
+                  blocks.forEach((b,i)=>{
+                    if(b.hp>0){
+                      if(ball.x>b.x&&ball.x<b.x+b.w&&ball.y>b.y&&ball.y<b.y+b.h){b.hp--;ball.vy*=-1;score+=5;}
+                      ctx.fillStyle=['#818cf8','#6366f1','#4f46e5'][b.hp-1]||'#312e81';
+                      ctx.fillRect(b.x,b.y,b.w,b.h);ctx.fillStyle='#fff';ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(b.hp,b.x+b.w/2,b.y+20);
+                    }
+                  });
+                  ctx.textAlign='left';ctx.fillStyle='#38bdf8';ctx.font='bold 18px sans-serif';ctx.fillText('마우스 클릭으로 공 발사 | 점수: '+score,20,35);
+                  requestAnimationFrame(loop);
+                }loop();
+                <\/script></body></html>`
+            }
+        ];
+
+        async function initAppData() {
+            if (isExternalHosting || !firebaseConfig) {
+                currentUser = { uid: 'guest-' + Math.random().toString(36).substring(2, 8) };
+                document.getElementById('profile-uid-display').innerText = currentUser.uid;
+                loadLocalFallbackData();
+                return;
+            }
+
+            try {
+                const [appMod, authMod, fsMod] = await Promise.all([
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"),
+                    import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+                ]);
+                fbModules = { ...appMod, ...authMod, ...fsMod };
+                app = fbModules.initializeApp(firebaseConfig);
+                auth = fbModules.getAuth(app);
+                db = fbModules.getFirestore(app);
+
+                fbModules.onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUser = user;
+                        document.getElementById('profile-uid-display').innerText = currentUser.uid.substring(0, 12);
+                        await loadUserProfile();
+                        loadCommunityGames();
+                    }
+                });
+
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await fbModules.signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await fbModules.signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.warn("Firebase fallback to local mode:", err);
+                isExternalHosting = true;
+                currentUser = { uid: 'guest-' + Math.random().toString(36).substring(2, 8) };
+                document.getElementById('profile-uid-display').innerText = currentUser.uid;
+                loadLocalFallbackData();
+            }
+        }
+
+        function loadLocalFallbackData() {
+            try {
+                const savedProfile = safeStorage.getItem('cube_ai_profile');
+                if (savedProfile) {
+                    myProfile = { ...myProfile, ...JSON.parse(savedProfile) };
+                }
+            } catch (e) {}
+            updateProfileUI();
+
+            try {
+                const savedGames = safeStorage.getItem('cube_ai_custom_games');
+                const customList = savedGames ? JSON.parse(savedGames) : [];
+                communityGames = [...customList, ...DEFAULT_MOCK_GAMES];
+            } catch (e) {
+                communityGames = [...DEFAULT_MOCK_GAMES];
+            }
+            renderGamesList();
+        }
+
+        function getGamesCollection() {
+            return fbModules.collection(db, 'artifacts', appId, 'public', 'data', 'games');
+        }
+
+        function getUserProfileDocRef() {
+            return fbModules.doc(db, 'artifacts', appId, 'users', currentUser.uid, 'profile', 'main');
+        }
+
+        async function loadUserProfile() {
+            if (!currentUser || isExternalHosting || !fbModules) {
+                updateProfileUI();
+                return;
+            }
+            try {
+                const snap = await fbModules.getDoc(getUserProfileDocRef());
+                if (snap.exists()) {
+                    myProfile = { ...myProfile, ...snap.data() };
+                } else {
+                    await fbModules.setDoc(getUserProfileDocRef(), myProfile);
+                }
+            } catch (e) {
+                console.warn("Profile load error:", e);
+            }
+            updateProfileUI();
+        }
+
+        async function saveProfileToStorage() {
+            safeStorage.setItem('cube_ai_profile', JSON.stringify(myProfile));
+            if (!currentUser || isExternalHosting || !fbModules) return;
+            try {
+                await fbModules.setDoc(getUserProfileDocRef(), myProfile, { merge: true });
+            } catch (e) {
+                console.warn("Profile save error:", e);
+            }
+        }
+
+        function getTierInfo(playCount) {
+            for (let i = TIERS.length - 1; i >= 0; i--) {
+                if (playCount >= TIERS[i].minPlays) {
+                    const currentTier = TIERS[i];
+                    const nextTier = TIERS[i + 1] || null;
+                    return { currentTier, nextTier };
+                }
+            }
+            return { currentTier: TIERS[0], nextTier: TIERS[1] };
+        }
+
+        function updateProfileUI() {
+            document.getElementById('profile-nickname').innerText = myProfile.nickname;
+            document.getElementById('profile-bio').innerText = myProfile.bio;
+            document.getElementById('stat-plays').innerText = myProfile.playCount;
+            document.getElementById('stat-created').innerText = myProfile.createdCount;
+            document.getElementById('stat-friends').innerText = myProfile.friends.length;
+            document.getElementById('friend-count-badge').innerText = myProfile.friends.length;
+
+            const avatarBox = document.getElementById('profile-avatar-box');
+            avatarBox.className = `w-20 h-20 rounded-2xl bg-gradient-to-tr ${myProfile.avatarBg} flex items-center justify-center text-white text-3xl shadow-lg ring-4 ring-white border border-slate-200 transition-all`;
+            document.getElementById('profile-avatar-icon').className = `fa-solid ${myProfile.avatarIcon}`;
+
+            const { currentTier, nextTier } = getTierInfo(myProfile.playCount);
+            const badge = document.getElementById('profile-tier-badge');
+            badge.className = `px-2.5 py-0.5 rounded-full text-xs font-black flex items-center gap-1 ${currentTier.badgeBg}`;
+            document.getElementById('profile-tier-icon').className = `fa-solid ${currentTier.icon}`;
+            document.getElementById('profile-tier-name').innerText = currentTier.name;
+            document.getElementById('header-tier-icon').className = `fa-solid ${currentTier.icon} text-emerald-500`;
+
+            const bar = document.getElementById('profile-tier-bar');
+            const nextText = document.getElementById('profile-tier-next-text');
+
+            if (nextTier) {
+                const range = nextTier.minPlays - currentTier.minPlays;
+                const progress = myProfile.playCount - currentTier.minPlays;
+                const pct = Math.min(100, Math.max(0, Math.floor((progress / range) * 100)));
+                const needed = nextTier.minPlays - myProfile.playCount;
+                bar.style.width = `${pct}%`;
+                nextText.innerText = `다음 티어(${nextTier.name})까지 ${needed}회 플레이 남음 (${pct}%)`;
+            } else {
+                bar.style.width = '100%';
+                nextText.innerText = '최고 티어달성! (👑 큐브 레전드)';
+            }
+
+            renderFriendsList();
+            renderRecommendedUsers();
+        }
+
+        async function loadCommunityGames() {
+            if (isExternalHosting || !fbModules) {
+                loadLocalFallbackData();
+                return;
+            }
+            try {
+                const querySnapshot = await fbModules.getDocs(getGamesCollection());
+                const docsData = [];
+                querySnapshot.forEach(docSnap => {
+                    docsData.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                if (docsData.length === 0) {
+                    for (const game of DEFAULT_MOCK_GAMES) {
+                        await fbModules.setDoc(fbModules.doc(getGamesCollection(), game.id), game);
+                    }
+                    communityGames = [...DEFAULT_MOCK_GAMES];
+                } else {
+                    communityGames = docsData;
+                }
+            } catch (err) {
+                communityGames = [...DEFAULT_MOCK_GAMES];
+            }
+            renderGamesList();
+        }
+
+        window.setFilter = function(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+            const activeBtn = document.getElementById(`filter-${filter}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+                activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+            }
+            renderGamesList();
+        };
+
+        window.handleSearch = function() {
+            searchQuery = document.getElementById('search-input').value.trim().toLowerCase();
+            renderGamesList();
+        };
+
+        function renderGamesList() {
+            let list = [...communityGames];
+
+            if (searchQuery) {
+                list = list.filter(g => 
+                    g.title?.toLowerCase().includes(searchQuery) ||
+                    g.desc?.toLowerCase().includes(searchQuery) ||
+                    (g.tags && g.tags.some(t => t.toLowerCase().includes(searchQuery)))
+                );
+            }
+
+            if (currentFilter === 'popular') {
+                list.sort((a, b) => (b.plays || 0) - (a.plays || 0));
+            } else if (currentFilter === 'liked') {
+                list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+            } else if (currentFilter === 'recent') {
+                list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            }
+
+            filteredGames = list;
+            const container = document.getElementById('games-grid');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filteredGames.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = filteredGames.map(game => `
+                <div class="group bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 transition-all flex flex-col">
+                    <div class="h-36 bg-gradient-to-tr from-blue-50 via-slate-100 to-red-50 relative p-4 flex items-center justify-center border-b border-slate-100 group-hover:scale-[1.02] transition-transform">
+                        <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 text-2xl shadow-sm">
+                            🎮
+                        </div>
+                        <div class="absolute top-3 right-3 bg-white/90 border border-slate-200 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-red-500 flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-heart"></i> ${game.likes || 0}
+                        </div>
+                        <div class="absolute bottom-3 left-3 bg-white/90 border border-slate-200 backdrop-blur-md px-2.5 py-1 rounded-lg text-[10px] font-bold text-blue-600 flex items-center gap-1 shadow-sm">
+                            <i class="fa-solid fa-eye text-blue-500"></i> ${game.plays || 0} 플레이
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                            <h3 class="font-extrabold text-slate-900 text-base group-hover:text-blue-600 transition line-clamp-1">${escapeHtml(game.title)}</h3>
+                            <p class="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">${escapeHtml(game.desc || '설명 없음')}</p>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1">
+                            ${(game.tags || []).map(tag => `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">#${escapeHtml(tag)}</span>`).join('')}
+                        </div>
+
+                        <button onclick="playGame('${game.id}')" class="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-play text-[10px] text-yellow-300"></i> 플레이하기
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 🔑 [사전 API 키 자동 적용 완료]
+        const PRE_SET_API_KEY = "AQ.Ab8RN6JM0cV_kFjow14v6TjDR76jK-3iQexz3fi5fnW0OCFJ2g";
+
+        function getEffectiveApiKey() {
+            const savedKey = safeStorage.getItem('cube_gemini_api_key');
+            if (savedKey && savedKey.trim()) return savedKey.trim();
+            if (PRE_SET_API_KEY && PRE_SET_API_KEY !== "YOUR_GEMINI_API_KEY_HERE") return PRE_SET_API_KEY.trim();
+            return "";
+        }
+
+        window.openApiKeyModal = function() {
+            document.getElementById('input-api-key').value = getEffectiveApiKey();
+            document.getElementById('apikey-test-result').classList.add('hidden');
+            document.getElementById('modal-apikey').classList.remove('hidden');
+        };
+
+        window.closeApiKeyModal = function() {
+            document.getElementById('modal-apikey').classList.add('hidden');
+        };
+
+        window.saveApiKey = function() {
+            const val = document.getElementById('input-api-key').value.trim();
+            if (val) {
+                safeStorage.setItem('cube_gemini_api_key', val);
+                showToast("새 API 키가 적용되었습니다!", "success");
+            } else {
+                safeStorage.removeItem('cube_gemini_api_key');
+                showToast("기본 내장 API 키로 복원되었습니다.", "info");
+            }
+            closeApiKeyModal();
+        };
+
+        window.testApiKeyConnection = async function() {
+            const key = document.getElementById('input-api-key').value.trim();
+            const resultBox = document.getElementById('apikey-test-result');
+            const btn = document.getElementById('btn-test-apikey');
+
+            if (!key) {
+                resultBox.className = "mt-2 p-2.5 rounded-xl text-[11px] bg-red-50 border border-red-200 text-red-700";
+                resultBox.innerText = "테스트할 API 키를 먼저 입력해 주세요.";
+                resultBox.classList.remove('hidden');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "테스트 중...";
+            resultBox.className = "mt-2 p-2.5 rounded-xl text-[11px] bg-blue-50 border border-blue-200 text-blue-700";
+            resultBox.innerText = "Google Gemini 서버와 통신을 확인하는 중입니다...";
+            resultBox.classList.remove('hidden');
+
+            try {
+                await callGeminiWithKey({
+                    contents: [{ parts: [{ text: "Say OK" }] }]
+                }, key, 1);
+
+                safeStorage.setItem('cube_gemini_api_key', key);
+                resultBox.className = "mt-2 p-2.5 rounded-xl text-[11px] bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold";
+                resultBox.innerHTML = "✅ 연결 성공! API 키가 정상 인증되었으며 자동 저장되었습니다.";
+            } catch (err) {
+                resultBox.className = "mt-2 p-2.5 rounded-xl text-[11px] bg-red-50 border border-red-200 text-red-800 space-y-1";
+                resultBox.innerHTML = `<strong>❌ 인증/연결 실패:</strong><br>${escapeHtml(err.message)}`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "연결 테스트";
+            }
+        };
+
+        async function callGemini(payload, retries = 2, delay = 800) {
+            return callGeminiWithKey(payload, getEffectiveApiKey(), retries, delay);
+        }
+
+        async function callGeminiWithKey(payload, keyToUse, retries = 2, delay = 800) {
+            const models = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
+            const isAqKey = keyToUse && keyToUse.startsWith('AQ.');
+
+            for (const modelName of models) {
+                // AQ. keys use x-goog-api-key header (single auth credential); AIza keys use query param
+                const url = isAqKey
+                    ? `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent`
+                    : `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${encodeURIComponent(keyToUse)}`;
+
+                const headers = { 'Content-Type': 'application/json' };
+                if (isAqKey && keyToUse) {
+                    headers['x-goog-api-key'] = keyToUse;
+                }
+
+                for (let i = 0; i < retries; i++) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers,
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.status === 404) {
+                            break;
+                        }
+                        if (!response.ok) {
+                            let errDetail = '';
+                            let errReason = '';
+                            try {
+                                const errJson = await response.json();
+                                errDetail = errJson?.error?.message || '';
+                                errReason = errJson?.error?.details?.[0]?.reason || '';
+                            } catch (e) {}
+
+                            if (errReason === 'ACCESS_TOKEN_TYPE_UNSUPPORTED' || errDetail.includes('API key not valid')) {
+                                throw new Error(`API 키 권한 오류 (HTTP ${response.status}): Google Cloud Console > API 및 서비스 > 사용자 인증 정보에서 해당 키의 'API 제한사항'을 'Generative Language API'로 변경하거나 제한 없음으로 설정해 주세요. (${errDetail})`);
+                            }
+                            if (response.status === 400 || response.status === 403 || response.status === 401) {
+                                throw new Error(`API 인증 오류 (HTTP ${response.status}): ${errDetail || "API 키를 확인해 주세요."}`);
+                            }
+                            throw new Error(`HTTP ${response.status} ${errDetail}`);
+                        }
+                        return await response.json();
+                    } catch (err) {
+                        if (err.message.includes('API 키 권한 오류') || err.message.includes('API 인증 오류')) {
+                            throw err;
+                        }
+                        if (i === retries - 1 && modelName === models[models.length - 1]) {
+                            throw err;
+                        }
+                        await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+                    }
+                }
+            }
+            throw new Error("AI 서버 응답을 받을 수 없습니다.");
+        }
+
+        window.enrichPrompt = async function() {
+            const rawPrompt = document.getElementById('prompt-input').value.trim();
+            if (!rawPrompt) {
+                showToast("아이디어를 먼저 입력창에 적어주세요!", "error");
+                return;
+            }
+
+            const btn = document.getElementById('btn-enrich');
+            const origText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> 확장 중...`;
+
+            try {
+                const systemPrompt = `당신은 세계 최고의 브라우저 게임 디자이너입니다. 사용자의 게임 아이디어를 보강해 재미있는 그래픽, 파워업, 승리조건을 포함하는 3문장의 한국어 요구사항으로 정제하세요.`;
+                const payload = {
+                    contents: [{ parts: [{ text: `사용자 아이디어: ${rawPrompt}` }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const result = await callGemini(payload);
+                const enhancedText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (enhancedText) {
+                    document.getElementById('prompt-input').value = enhancedText.trim();
+                    showToast("AI가 게임 아이디어를 디테일하게 보강했습니다!", "success");
+                }
+            } catch (err) {
+                showToast(err.message || "아이디어 보강 중 오류가 발생했습니다.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origText;
+            }
+        };
+
+        // Unified Chat & Submission Handler (Generation or Modification)
+        window.handleUnifiedSubmit = async function() {
+            const inputText = document.getElementById('prompt-input').value.trim();
+            if (!inputText) {
+                showToast("요청할 내용을 입력해 주세요!", "error");
+                return;
+            }
+
+            document.getElementById('prompt-input').value = '';
+
+            if (!currentGeneratedHtml) {
+                await generateGameFromPrompt(inputText);
+            } else {
+                await refineGameFromPrompt(inputText);
+            }
+        };
+
+        async function generateGameFromPrompt(promptText) {
+            currentPrompt = promptText;
+            appendChatLog('user', promptText);
+            showStudioLoading(true, "AI가 게임 코드를 생성하고 있습니다...", `요청: "${promptText.slice(0, 30)}..."`);
+
+            const systemInstruction = `You are an expert HTML5 / Canvas Game Developer. Generate a COMPLETE, HIGH-QUALITY, FULLY RESPONSIVE HTML game.
+RULES:
+1. Output ONLY executable HTML starting with <!DOCTYPE html>.
+2. Styling: Use CSS full-viewport responsive layout (html, body, canvas { width: 100vw; height: 100vh; margin:0; padding:0; overflow:hidden; }).
+3. Canvas Sizing: Ensure canvas resizes dynamically (function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; } window.addEventListener('resize', resize);).
+4. Controls: Support both Desktop keyboard/mouse AND Mobile Touch controls.
+5. Visuals: Make game elements visually impressive (gradients, score UI, game over overlays, restart button on game over).
+6. Never call alert(). Use custom in-game UI.`;
+
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            try {
+                const result = await callGemini(payload);
+                let rawCode = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                rawCode = cleanCodeOutput(rawCode);
+
+                if (!rawCode || !rawCode.includes('<')) {
+                    throw new Error("AI가 유효한 게임 코드를 반환하지 않았습니다.");
+                }
+
+                currentGeneratedHtml = rawCode;
+                updateSandbox(currentGeneratedHtml);
+
+                appendChatLog('ai', "게임이 생성되었습니다! 화면 오른쪽 미리보기에서 바로 테스트하시고, 추가 수정할 부분이 있다면 입력창에 입력해 주세요.");
+                document.getElementById('studio-game-title').innerText = promptText.slice(0, 15) + (promptText.length > 15 ? '...' : '');
+                document.getElementById('btn-generate-text').innerText = "수정 반영";
+
+                showToast("게임 생성이 완료되었습니다!", "success");
+            } catch (err) {
+                appendApiErrorWithFallback(err.message || "게임 생성에 실패했습니다.", promptText);
+                showToast("AI 연결 오류 - 안내 메시지를 확인해 주세요.", "error");
+            } finally {
+                showStudioLoading(false);
+            }
+        }
+
+        async function refineGameFromPrompt(refineText) {
+            appendChatLog('user', refineText);
+            showStudioLoading(true, "AI가 게임을 수정하는 중입니다...", `수정 요청: "${refineText}"`);
+
+            const systemInstruction = `You are modifying an existing HTML game. Apply user refinement request cleanly. Return ONLY executable HTML starting with <!DOCTYPE html>.`;
+            const userContent = `[CURRENT_HTML]: ${currentGeneratedHtml}\n[REFINEMENT_REQUEST]: ${refineText}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userContent }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            try {
+                const result = await callGemini(payload);
+                let updatedCode = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                updatedCode = cleanCodeOutput(updatedCode);
+
+                currentGeneratedHtml = updatedCode;
+                updateSandbox(currentGeneratedHtml);
+
+                appendChatLog('ai', `"${refineText}" 수정이 반영되었습니다! 화면에서 확인해 보세요.`);
+                showToast("수정이 완료되었습니다!", "success");
+            } catch (err) {
+                appendChatLog('ai', `⚠️ 수정 오류: ${err.message || "수정에 실패했습니다."}`);
+                showToast(err.message || "수정 중 오류가 발생했습니다.", "error");
+            } finally {
+                showStudioLoading(false);
+            }
+        }
+
+        function appendApiErrorWithFallback(errorMsg, promptText) {
+            const container = document.getElementById('unified-chat-history');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "bg-red-50 border border-red-200 text-slate-800 p-3 rounded-xl mr-4 shadow-sm space-y-2";
+            const encodedPrompt = encodeURIComponent(promptText);
+            msgDiv.innerHTML = `
+                <span class="font-bold text-[11px] text-red-600 block">⚠️ AI 생성 연결 실패 안내</span>
+                <p class="text-[11px] text-slate-700 leading-relaxed">${escapeHtml(errorMsg)}</p>
+                <div class="flex flex-wrap gap-1.5 pt-1">
+                    <button onclick="openApiKeyModal()" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-800 rounded-lg text-[11px] font-bold transition">
+                        🔑 API 키 확인/테스트
+                    </button>
+                    <button onclick="generateOfflineFallbackGame(decodeURIComponent('${encodedPrompt}'))" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold transition shadow-sm">
+                        ⚡ 내장 엔진으로 즉시 게임 생성
+                    </button>
+                </div>
+            `;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.generateOfflineFallbackGame = function(promptText) {
+            const titleText = promptText || "큐브 아케이드 액션";
+            const isShooter = /슈팅|총|우주|레이저|바이러스|공격/.test(titleText);
+            const isBrick = /벽돌|블록|깨기|공|바운스/.test(titleText);
+
+            let fallbackHtml = '';
+            if (isBrick) {
+                fallbackHtml = DEFAULT_MOCK_GAMES[1].code;
+            } else if (isShooter) {
+                fallbackHtml = `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#050816;color:#fff;font-family:sans-serif}canvas{display:block;width:100vw;height:100vh}</style></head><body><canvas id="c"></canvas><script>
+                const c=document.getElementById('c'),ctx=c.getContext('2d');
+                let W,H;function resize(){W=c.width=window.innerWidth;H=c.height=window.innerHeight;}
+                window.onresize=resize;resize();
+                let ship={x:W/2,y:H-70,w:36,h:36,s:8},bullets=[],enemies=[],score=0,over=false,keys={};
+                window.onkeydown=e=>{keys[e.key]=true;if(e.key===' '&&!over)bullets.push({x:ship.x,y:ship.y-20,vy:-12});};
+                window.onkeyup=e=>keys[e.key]=false;
+                c.ontouchmove=e=>{e.preventDefault();ship.x=e.touches[0].clientX;};
+                c.onclick=()=>{if(!over)bullets.push({x:ship.x,y:ship.y-20,vy:-12});else location.reload();};
+                setInterval(()=>{if(!over)enemies.push({x:Math.random()*(W-40)+20,y:-20,vy:Math.random()*3+2.5,r:18});},650);
+                function loop(){
+                  if(keys['ArrowLeft']&&ship.x>25)ship.x-=ship.s;
+                  if(keys['ArrowRight']&&ship.x<W-25)ship.x+=ship.s;
+                  ctx.fillStyle='rgba(5,8,22,0.35)';ctx.fillRect(0,0,W,H);
+                  ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.moveTo(ship.x,ship.y-22);ctx.lineTo(ship.x-20,ship.y+18);ctx.lineTo(ship.x+20,ship.y+18);ctx.closePath();ctx.fill();
+                  ctx.fillStyle='#facc15';
+                  bullets.forEach((b,bi)=>{b.y+=b.vy;ctx.fillRect(b.x-3,b.y,6,14);if(b.y<0)bullets.splice(bi,1);});
+                  enemies.forEach((en,ei)=>{
+                    en.y+=en.vy;ctx.fillStyle='#f43f5e';ctx.beginPath();ctx.arc(en.x,en.y,en.r,0,Math.PI*2);ctx.fill();
+                    if(Math.hypot(ship.x-en.x,ship.y-en.y)<en.r+18)over=true;
+                    bullets.forEach((b,bi)=>{if(Math.hypot(b.x-en.x,b.y-en.y)<en.r+6){enemies.splice(ei,1);bullets.splice(bi,1);score+=100;}});
+                  });
+                  ctx.fillStyle='#fff';ctx.font='bold 18px sans-serif';ctx.fillText('방향키 이동 / 스페이스·클릭 발사 | 점수: '+score,20,36);
+                  if(over){ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(0,0,W,H);ctx.fillStyle='#f43f5e';ctx.font='bold 38px sans-serif';ctx.textAlign='center';ctx.fillText('GAME OVER - 점수: '+score,W/2,H/2);ctx.fillStyle='#fff';ctx.font='16px sans-serif';ctx.fillText('화면을 클릭하면 다시 시작합니다',W/2,H/2+40);return;}
+                  requestAnimationFrame(loop);
+                }loop();
+                <\/script></body></html>`;
+            } else {
+                fallbackHtml = DEFAULT_MOCK_GAMES[0].code;
+            }
+
+            currentGeneratedHtml = fallbackHtml;
+            updateSandbox(currentGeneratedHtml);
+            document.getElementById('studio-game-title').innerText = titleText.slice(0, 15) + (titleText.length > 15 ? '...' : '');
+            document.getElementById('btn-generate-text').innerText = "수정 반영";
+            appendChatLog('ai', `"${titleText}" 테마의 플레이 가능한 프로토타입 게임을 즉시 생성했습니다! 오른쪽 화면에서 플레이하거나 게시판에 게시해 보세요.`);
+            showToast("즉석 프로토타입 게임이 생성되었습니다!", "success");
+        };
+
+        function appendChatLog(role, text) {
+            const container = document.getElementById('unified-chat-history');
+            const msgDiv = document.createElement('div');
+            
+            if (role === 'user') {
+                msgDiv.className = "bg-blue-600 text-white p-2.5 rounded-xl ml-6 shadow-sm";
+                msgDiv.innerHTML = `<span class="font-bold text-[10px] text-blue-200 block mb-0.5">👤 사용자</span><div>${escapeHtml(text)}</div>`;
+            } else {
+                msgDiv.className = "bg-white border border-slate-200 text-slate-800 p-2.5 rounded-xl mr-6 shadow-sm";
+                msgDiv.innerHTML = `<span class="font-bold text-[10px] text-amber-600 block mb-0.5">🤖 큐브 AI</span><div>${escapeHtml(text)}</div>`;
+            }
+
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.deleteCurrentGame = function() {
+            if (!currentGeneratedHtml) {
+                showToast("삭제할 생성된 게임이 없습니다.", "info");
+                return;
+            }
+            currentGeneratedHtml = '';
+            document.getElementById('game-sandbox').classList.add('hidden');
+            document.getElementById('game-sandbox').srcdoc = '';
+            document.getElementById('preview-placeholder').classList.remove('hidden');
+            document.getElementById('btn-publish-open').disabled = true;
+            document.getElementById('studio-game-title').innerText = "게임 미생성";
+            document.getElementById('btn-generate-text').innerText = "전송";
+            appendChatLog('ai', "생성된 게임이 삭제되었습니다. 새로운 게임 아이디어를 입력하세요!");
+            showToast("게임이 삭제되었습니다.", "info");
+        };
+
+        window.resetStudio = function() {
+            currentGeneratedHtml = '';
+            currentPrompt = '';
+            document.getElementById('prompt-input').value = '';
+            document.getElementById('game-sandbox').classList.add('hidden');
+            document.getElementById('game-sandbox').srcdoc = '';
+            document.getElementById('preview-placeholder').classList.remove('hidden');
+            document.getElementById('btn-publish-open').disabled = true;
+            document.getElementById('studio-game-title').innerText = "게임 미생성";
+            document.getElementById('btn-generate-text').innerText = "전송";
+
+            const chatContainer = document.getElementById('unified-chat-history');
+            chatContainer.innerHTML = `
+                <div class="bg-white p-3 rounded-xl border border-slate-200 text-slate-700 shadow-sm space-y-1">
+                    <span class="font-extrabold text-blue-600 block">🤖 큐브 AI 스튜디오</span>
+                    <p>원하는 게임 아이디어를 말해보세요! (예: "네온 테마의 벽돌깨기 만들어줘")</p>
+                    <p class="text-[11px] text-slate-500 pt-1 border-t border-slate-100">게임이 생성된 후에도 같은 대화창에서 "속도 2배로 해줘", "적 추가해줘"라고 입력하여 계속 수정할 수 있습니다.</p>
+                </div>
+            `;
+            showToast("스튜디오 대화 및 게임이 초기화되었습니다.", "info");
+        };
+
+        // Aspect Ratio & Fullscreen Helpers
+        window.setSandboxRatio = function(ratio) {
+            const wrapper = document.getElementById('sandbox-aspect-wrapper');
+            document.querySelectorAll('.sratio-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                btn.classList.add('text-slate-600');
+            });
+
+            const activeId = ratio === '16:9' ? 'ratio-16-9' : ratio === '4:3' ? 'ratio-4-3' : ratio === '9:16' ? 'ratio-9-16' : 'ratio-full';
+            const activeBtn = document.getElementById(activeId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600');
+                activeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+            }
+
+            if (ratio === '16:9') {
+                wrapper.className = "w-full max-w-4xl aspect-video mx-auto transition-all duration-300 flex items-center justify-center";
+            } else if (ratio === '4:3') {
+                wrapper.className = "h-full aspect-[4/3] mx-auto transition-all duration-300 flex items-center justify-center";
+            } else if (ratio === '9:16') {
+                wrapper.className = "h-full aspect-[9/16] mx-auto transition-all duration-300 flex items-center justify-center";
+            } else {
+                wrapper.className = "w-full h-full transition-all duration-300 flex items-center justify-center";
+            }
+        };
+
+        window.setPlayerRatio = function(ratio) {
+            const box = document.getElementById('player-aspect-box');
+            document.querySelectorAll('.pratio-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-blue-600', 'shadow-sm');
+                btn.classList.add('text-slate-600');
+            });
+
+            const activeId = ratio === '16:9' ? 'pratio-16-9' : ratio === '4:3' ? 'pratio-4-3' : ratio === '9:16' ? 'pratio-9-16' : 'pratio-full';
+            const activeBtn = document.getElementById(activeId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-600');
+                activeBtn.classList.add('bg-white', 'text-blue-600', 'shadow-sm');
+            }
+
+            if (ratio === '16:9') {
+                box.className = "w-full max-w-5xl aspect-video mx-auto transition-all duration-300 flex items-center justify-center";
+            } else if (ratio === '4:3') {
+                box.className = "h-full aspect-[4/3] mx-auto transition-all duration-300 flex items-center justify-center";
+            } else if (ratio === '9:16') {
+                box.className = "h-full aspect-[9/16] mx-auto transition-all duration-300 flex items-center justify-center";
+            } else {
+                box.className = "w-full h-full transition-all duration-300 flex items-center justify-center";
+            }
+        };
+
+        window.toggleFullscreen = function(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            try {
+                if (!document.fullscreenElement) {
+                    if (el.requestFullscreen) el.requestFullscreen();
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                }
+            } catch (e) {
+                showToast("현재 임베드 환경에서는 브라우저 전체화면이 제한될 수 있습니다.", "info");
+            }
+        };
+
+        function cleanCodeOutput(code) {
+            let cleaned = code.trim();
+            if (cleaned.startsWith('```html')) cleaned = cleaned.replace(/^```html\n?/, '');
+            else if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```\n?/, '');
+            if (cleaned.endsWith('```')) cleaned = cleaned.replace(/\n?```$/, '');
+            return cleaned.trim();
+        }
+
+        function updateSandbox(html) {
+            const sandbox = document.getElementById('game-sandbox');
+            const placeholder = document.getElementById('preview-placeholder');
+            const pubBtn = document.getElementById('btn-publish-open');
+
+            placeholder.classList.add('hidden');
+            sandbox.classList.remove('hidden');
+            pubBtn.disabled = false;
+
+            sandbox.srcdoc = html;
+            document.getElementById('code-display').textContent = html;
+        }
+
+        window.reloadPreview = function() {
+            if (currentGeneratedHtml) updateSandbox(currentGeneratedHtml);
+        };
+
+        function showStudioLoading(show, title = '', desc = '') {
+            const overlay = document.getElementById('ai-loading-overlay');
+            if (show) {
+                overlay.classList.remove('hidden');
+                document.getElementById('loading-title').innerText = title;
+                document.getElementById('loading-desc').innerText = desc;
+            } else {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        window.usePreset = function(text) {
+            document.getElementById('prompt-input').value = text;
+        };
+
+        window.openPublishModal = function() {
+            if (!currentGeneratedHtml) return;
+            document.getElementById('modal-publish').classList.remove('hidden');
+        };
+
+        window.closePublishModal = function() {
+            document.getElementById('modal-publish').classList.add('hidden');
+        };
+
+        window.submitPublishGame = async function() {
+            const title = document.getElementById('pub-title').value.trim();
+            const author = document.getElementById('pub-author').value.trim() || myProfile.nickname;
+            const desc = document.getElementById('pub-desc').value.trim();
+            const tagsInput = document.getElementById('pub-tags').value.trim();
+
+            if (!title || !desc) {
+                showToast("제목과 설명을 모두 작성해주세요!", "error");
+                return;
+            }
+
+            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(Boolean) : ['큐브AI'];
+            const gameId = 'game_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+            const newGameObj = {
+                id: gameId,
+                title,
+                author,
+                desc,
+                tags,
+                code: currentGeneratedHtml,
+                plays: 1,
+                likes: 0,
+                createdAt: Date.now(),
+                creatorUid: currentUser ? currentUser.uid : 'anon'
+            };
+
+            try {
+                if (!isExternalHosting && fbModules) {
+                    await fbModules.setDoc(fbModules.doc(getGamesCollection(), gameId), newGameObj);
+                }
+                communityGames.unshift(newGameObj);
+
+                if (isExternalHosting) {
+                    const customGames = communityGames.filter(g => !g.id.startsWith('mock-'));
+                    safeStorage.setItem('cube_ai_custom_games', JSON.stringify(customGames));
+                }
+
+                myProfile.createdCount = (myProfile.createdCount || 0) + 1;
+                await saveProfileToStorage();
+                updateProfileUI();
+
+                renderGamesList();
+                closePublishModal();
+                showToast("온라인 게시판에 게임이 성공적으로 공유되었습니다!", "success");
+                switchTab('explore');
+            } catch (err) {
+                showToast("게시 중 오류가 발생했습니다.", "error");
+            }
+        };
+
+        window.playGame = async function(gameId) {
+            const game = communityGames.find(g => g.id === gameId);
+            if (!game) return;
+
+            activePlayingGame = game;
+
+            document.getElementById('player-title').innerText = game.title;
+            document.getElementById('player-author').innerText = `제작자: ${game.author || '익명'}`;
+            document.getElementById('player-desc').innerText = game.desc || '';
+            document.getElementById('player-like-count').innerText = game.likes || 0;
+            document.getElementById('player-views').innerText = (game.plays || 0) + 1;
+            document.getElementById('player-date').innerText = new Date(game.createdAt || Date.now()).toLocaleDateString();
+
+            const iframe = document.getElementById('player-iframe');
+            iframe.srcdoc = game.code;
+
+            document.getElementById('modal-player').classList.remove('hidden');
+
+            const oldTier = getTierInfo(myProfile.playCount).currentTier.name;
+            myProfile.playCount = (myProfile.playCount || 0) + 1;
+            const newTierInfo = getTierInfo(myProfile.playCount).currentTier;
+
+            if (oldTier !== newTierInfo.name) {
+                showToast(`🎉 축하합니다! ${newTierInfo.name}(으)로 승급하셨습니다!`, "success");
+            } else {
+                showToast(`🎮 게임을 플레이했습니다! (총 ${myProfile.playCount}회)`, "info");
+            }
+
+            await saveProfileToStorage();
+            updateProfileUI();
+
+            game.plays = (game.plays || 0) + 1;
+            renderGamesList();
+
+            if (!isExternalHosting && fbModules) {
+                try {
+                    const gameRef = fbModules.doc(getGamesCollection(), gameId);
+                    await fbModules.updateDoc(gameRef, { plays: fbModules.increment(1) });
+                } catch (e) {}
+            }
+        };
+
+        window.closePlayerModal = function() {
+            document.getElementById('modal-player').classList.add('hidden');
+            document.getElementById('player-iframe').srcdoc = '';
+            activePlayingGame = null;
+        };
+
+        window.likeCurrentGame = async function() {
+            if (!activePlayingGame) return;
+
+            activePlayingGame.likes = (activePlayingGame.likes || 0) + 1;
+            document.getElementById('player-like-count').innerText = activePlayingGame.likes;
+            renderGamesList();
+            showToast("좋아요를 눌렀습니다! ❤️", "success");
+
+            if (!isExternalHosting && fbModules) {
+                try {
+                    const gameRef = fbModules.doc(getGamesCollection(), activePlayingGame.id);
+                    await fbModules.updateDoc(gameRef, { likes: fbModules.increment(1) });
+                } catch (e) {}
+            }
+        };
+
+        window.forkCurrentGame = function() {
+            if (!activePlayingGame) return;
+            const forkedTitle = activePlayingGame.title;
+            const forkedDesc = activePlayingGame.desc;
+            currentGeneratedHtml = activePlayingGame.code;
+            currentPrompt = forkedTitle;
+            closePlayerModal();
+
+            switchTab('create');
+            updateSandbox(currentGeneratedHtml);
+            document.getElementById('studio-game-title').innerText = forkedTitle.slice(0, 15) + (forkedTitle.length > 15 ? '...' : '');
+            document.getElementById('btn-generate-text').innerText = "수정 반영";
+            appendChatLog('ai', `'${forkedTitle}' (${forkedDesc}) 게임을 스튜디오로 가져왔습니다! 원하는 수정 사항을 입력해 주세요.`);
+
+            showToast("스튜디오로 게임을 가져왔습니다. 마음껏 수정해보세요!", "info");
+        };
+
+        window.switchTab = function(tab) {
+            const exploreView = document.getElementById('view-explore');
+            const createView = document.getElementById('view-create');
+            const profileView = document.getElementById('view-profile');
+
+            const navExplore = document.getElementById('nav-explore');
+            const navCreate = document.getElementById('nav-create');
+            const navProfile = document.getElementById('nav-profile');
+
+            exploreView.classList.add('hidden');
+            createView.classList.add('hidden');
+            profileView.classList.add('hidden');
+
+            navExplore.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-white/60";
+            navCreate.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-white/60";
+            navProfile.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 text-slate-600 hover:text-blue-600 hover:bg-white/60 relative";
+
+            if (tab === 'explore') {
+                exploreView.classList.remove('hidden');
+                navExplore.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 bg-white text-slate-900 shadow-sm";
+            } else if (tab === 'create') {
+                createView.classList.remove('hidden');
+                navCreate.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-sm";
+            } else if (tab === 'profile') {
+                profileView.classList.remove('hidden');
+                navProfile.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-sm";
+            }
+        };
+
+        window.openEditProfileModal = function() {
+            document.getElementById('edit-nickname').value = myProfile.nickname;
+            document.getElementById('edit-bio').value = myProfile.bio;
+            tempEditAvatarIcon = myProfile.avatarIcon;
+            tempEditAvatarBg = myProfile.avatarBg;
+            updateModalAvatarPreview();
+            document.getElementById('modal-edit-profile').classList.remove('hidden');
+        };
+
+        window.closeEditProfileModal = function() {
+            document.getElementById('modal-edit-profile').classList.add('hidden');
+        };
+
+        window.selectAvatarIcon = function(icon) {
+            tempEditAvatarIcon = icon;
+            updateModalAvatarPreview();
+        };
+
+        window.selectAvatarBg = function(bgClass) {
+            tempEditAvatarBg = bgClass;
+            updateModalAvatarPreview();
+        };
+
+        function updateModalAvatarPreview() {
+            const previewBox = document.getElementById('modal-avatar-preview');
+            previewBox.className = `w-20 h-20 rounded-2xl bg-gradient-to-tr ${tempEditAvatarBg} flex items-center justify-center text-white text-3xl shadow-md border border-slate-200`;
+            document.getElementById('modal-avatar-icon-preview').className = `fa-solid ${tempEditAvatarIcon}`;
+        }
+
+        window.saveProfileChanges = async function() {
+            const nick = document.getElementById('edit-nickname').value.trim();
+            const bio = document.getElementById('edit-bio').value.trim();
+
+            if (!nick) {
+                showToast("닉네임을 입력해주세요!", "error");
+                return;
+            }
+
+            myProfile.nickname = nick;
+            myProfile.bio = bio || '소개가 없습니다.';
+            myProfile.avatarIcon = tempEditAvatarIcon;
+            myProfile.avatarBg = tempEditAvatarBg;
+
+            await saveProfileToStorage();
+            updateProfileUI();
+            closeEditProfileModal();
+            showToast("프로필 수정사항이 저장되었습니다!", "success");
+        };
+
+        window.copyMyUid = function() {
+            if (!currentUser) return;
+            const temp = document.createElement('textarea');
+            temp.value = currentUser.uid;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast("고유 유저 ID가 복사되었습니다!", "success");
+        };
+
+        window.switchFriendTab = function(subTab) {
+            const btnList = document.getElementById('ftab-list');
+            const btnAdd = document.getElementById('ftab-add');
+            const subList = document.getElementById('fsub-list');
+            const subAdd = document.getElementById('fsub-add');
+
+            if (subTab === 'list') {
+                subList.classList.remove('hidden');
+                subAdd.classList.add('hidden');
+                btnList.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-white text-slate-900 shadow-sm";
+                btnAdd.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 hover:text-blue-600";
+            } else {
+                subList.classList.add('hidden');
+                subAdd.classList.remove('hidden');
+                btnList.className = "px-3 py-1 rounded-lg text-xs font-bold transition text-slate-600 hover:text-blue-600";
+                btnAdd.className = "px-3 py-1 rounded-lg text-xs font-bold transition bg-white text-slate-900 shadow-sm";
+            }
+        };
+
+        function renderFriendsList() {
+            const container = document.getElementById('friends-grid');
+            const emptyState = document.getElementById('empty-friends-state');
+
+            const friendObjects = RECOMMENDED_USERS.filter(u => myProfile.friends.includes(u.uid));
+
+            if (friendObjects.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = friendObjects.map(user => `
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:border-blue-300 transition shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${user.avatarBg} flex items-center justify-center text-white text-xl shadow-sm">
+                            <i class="fa-solid ${user.avatarIcon}"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-extrabold text-xs text-slate-900">${escapeHtml(user.nickname)}</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-200 text-slate-700">${user.tierName}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 line-clamp-1">${escapeHtml(user.bio)}</p>
+                            <span class="text-[10px] text-blue-600 font-bold block"><i class="fa-solid fa-gamepad mr-1"></i>${user.playCount}회 플레이</span>
+                        </div>
+                    </div>
+                    <button onclick="removeFriend('${user.uid}')" title="친구 삭제" class="text-slate-400 hover:text-red-500 text-xs p-2 rounded-lg hover:bg-slate-200 transition">
+                        <i class="fa-solid fa-user-minus"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderRecommendedUsers() {
+            const container = document.getElementById('recommended-users-grid');
+            const candidates = RECOMMENDED_USERS.filter(u => !myProfile.friends.includes(u.uid));
+
+            if (candidates.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-6 text-xs text-slate-400">모든 추천 게이머와 이미 친구입니다! 🎉</div>`;
+                return;
+            }
+
+            container.innerHTML = candidates.map(user => `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:shadow transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${user.avatarBg} flex items-center justify-center text-white text-xl shadow-sm">
+                            <i class="fa-solid ${user.avatarIcon}"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-1.5">
+                                <span class="font-extrabold text-xs text-slate-900">${escapeHtml(user.nickname)}</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700">${user.tierName}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 line-clamp-1">${escapeHtml(user.bio)}</p>
+                        </div>
+                    </div>
+                    <button onclick="addFriend('${user.uid}', '${escapeHtml(user.nickname)}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1">
+                        <i class="fa-solid fa-user-plus text-[10px]"></i> 추가
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.addFriend = async function(uid, name) {
+            if (!myProfile.friends.includes(uid)) {
+                myProfile.friends.push(uid);
+                await saveProfileToStorage();
+                updateProfileUI();
+                showToast(`${name}님을 친구로 추가했습니다! 🎉`, "success");
+            }
+        };
+
+        window.removeFriend = async function(uid) {
+            myProfile.friends = myProfile.friends.filter(f => f !== uid);
+            await saveProfileToStorage();
+            updateProfileUI();
+            showToast("친구가 목록에서 삭제되었습니다.", "info");
+        };
+
+        window.searchUsers = function() {
+            const query = document.getElementById('friend-search-input').value.trim().toLowerCase();
+            if (!query) {
+                renderRecommendedUsers();
+                return;
+            }
+
+            const matched = RECOMMENDED_USERS.filter(u => 
+                u.nickname.toLowerCase().includes(query) || u.uid.toLowerCase().includes(query)
+            );
+
+            const container = document.getElementById('recommended-users-grid');
+            if (matched.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-6 text-xs text-slate-500">검색 조건과 일치하는 유저가 없습니다.</div>`;
+                return;
+            }
+
+            container.innerHTML = matched.map(user => `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr ${user.avatarBg} flex items-center justify-center text-white text-xl shadow-sm">
+                            <i class="fa-solid ${user.avatarIcon}"></i>
+                        </div>
+                        <div>
+                            <span class="font-extrabold text-xs text-slate-900 block">${escapeHtml(user.nickname)}</span>
+                            <span class="text-[10px] text-slate-500">${user.tierName} • ${user.playCount}회 플레이</span>
+                        </div>
+                    </div>
+                    ${myProfile.friends.includes(user.uid) ? 
+                        `<span class="text-xs font-bold text-emerald-600"><i class="fa-solid fa-check mr-1"></i>친구</span>` :
+                        `<button onclick="addFriend('${user.uid}', '${escapeHtml(user.nickname)}')" class="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition">추가</button>`
+                    }
+                </div>
+            `).join('');
+        };
+
+        window.toggleCodeModal = function() {
+            document.getElementById('modal-code').classList.toggle('hidden');
+        };
+
+        window.copyCode = function() {
+            const codeText = document.getElementById('code-display').textContent;
+            if (!codeText) return;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+            showToast("소스코드가 클립보드에 복사되었습니다!", "success");
+        };
+
+        window.showToast = function(msg, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-blue-600 text-white shadow-md' :
+                            type === 'error' ? 'bg-red-500 text-white shadow-md' : 'bg-white text-slate-800 border border-slate-200 shadow-lg';
+
+            toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0 ${bgClass}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${type === 'success' ? 'fa-circle-check text-yellow-300' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info text-blue-500'}"></i>
+                <span>${escapeHtml(msg)}</span>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAppData);
+        } else {
+            initAppData();
+        }
+    </script>
+</body>
+</html>
